@@ -1,12 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 )
 
 func home(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello World!"))
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+	fmt.Fprintln(w, "<h1>Hello World! This is a home page.</h1>")
 }
 
 func snippetView(w http.ResponseWriter, r *http.Request) {
@@ -14,7 +19,13 @@ func snippetView(w http.ResponseWriter, r *http.Request) {
 }
 
 func snippetCreate(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Create a specific snippet."))
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", "POST")
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Write([]byte("Create a new snippet..."))
 }
 
 func main() {
